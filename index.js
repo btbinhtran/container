@@ -6,17 +6,19 @@
 module.exports = new Container;
 
 function Container() {
-  this.registry = {};
+  this.factories = {};
+  this.args = {};
   this.cache = {};
 }
 
 Container.prototype.lookup = function(key){
   var val = this.get(key);
-  return val || (val = this.registry[key]) && this.set(key, val[0].apply(val[0], val[1]));
+  return val || this.set(key, this.factories[key].apply(this.factories[key], this.args[key]));
 }
 
 Container.prototype.register = function(key, factory, args){
-  this.registry[key] = [factory, args];
+  this.factories[key] = factory;
+  this.args[key] = args;
 
   return this;
 }

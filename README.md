@@ -11,7 +11,7 @@ npm install tower-container
 ## Quick Start
 
 ``` javascript
-var towerContainer = require('tower-container');
+var container = require('tower-container');
 ```
 
 ## Features
