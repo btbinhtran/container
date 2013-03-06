@@ -12,6 +12,13 @@ var Factory = require('tower-factory');
 module.exports = new Container;
 
 /**
+ * Expose the `Container` constructor,
+ * so you can use containers manually.
+ */
+
+module.exports.Container = Container;
+
+/**
  * Instantiate a new `Container`.
  *
  * @api public
@@ -81,10 +88,3 @@ Container.prototype.clear = function(){
 Container.prototype.undefine = function(key){
   delete this.cache[key];
 }
-
-/**
- * Expose the `Container` constructor,
- * so you can use containers manually.
- */
-
-module.exports.Container = Container;
