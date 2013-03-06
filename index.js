@@ -67,11 +67,23 @@ Container.prototype.factory = function(key, fn, args){
  * an instance of a factory.
  *
  * @param {String} key
+ * @param {String} [factoryKey] Can be a glob.
  * @api public
  */
 
-Container.prototype.lookup = function(key){
-  return this.get(key) || this.set(key, this.factories[key].create());
+Container.prototype.lookup = function(key, factoryKey){
+  return this.get(key) || this.set(key, this.resolve(factoryKey || key));
+}
+
+/**
+ * Resolve to the factory instance from a key.
+ *
+ * @param {String} key
+ * @api public
+ */
+
+Container.prototype.resolve = function(key){
+  return this.factories[key].create();
 }
 
 /**
@@ -94,8 +106,7 @@ Container.prototype.get = function(key){
  */
 
 Container.prototype.set = function(key, val){
-  this.cache[key] = val;
-  return this;
+  return this.cache[key] = val;
 }
 
 /**
