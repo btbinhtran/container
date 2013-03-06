@@ -32,12 +32,14 @@ function Container() {
 /**
  * Register a factory/class.
  *
+ * @param {String}    key
+ * @param {Function}  fn
+ * @param {Array}     [args]
  * @api public
  */
 
 Container.prototype.register = function(key, fn, args){
   this.factories[key] = new Factory(fn, args);
-
   return this;
 }
 
@@ -48,6 +50,11 @@ Container.prototype.register = function(key, fn, args){
  *
  *    container.factory('admin', User, { isAdmin: true })
  *    container.factory('admin').create();
+ *
+ * @param {String}    key
+ * @param {Function}  [fn]
+ * @param {Array}     [args]
+ * @api public
  */
 
 Container.prototype.factory = function(key, fn, args){
@@ -59,6 +66,7 @@ Container.prototype.factory = function(key, fn, args){
  * Get or lazily instantiate and return
  * an instance of a factory.
  *
+ * @param {String} key
  * @api public
  */
 
@@ -69,6 +77,7 @@ Container.prototype.lookup = function(key){
 /**
  * Get an instance of a class.
  *
+ * @param {String} key
  * @api public
  */
 
@@ -79,11 +88,13 @@ Container.prototype.get = function(key){
 /**
  * Set an instance of a class.
  *
+ * @param {String} key
+ * @param {Object} val
  * @api public
  */
 
-Container.prototype.set = function(key, value){
-  this.cache[key] = value;
+Container.prototype.set = function(key, val){
+  this.cache[key] = val;
   return this;
 }
 
