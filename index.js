@@ -1,5 +1,11 @@
 
 /**
+ * Module dependencies.
+ */
+
+var Factory = require('tower-factory');
+
+/**
  * Expose an instance of `Container`.
  */
 
@@ -13,7 +19,6 @@ module.exports = new Container;
 
 function Container() {
   this.factories = {};
-  this.args = {};
   this.cache = {};
 }
 
@@ -26,7 +31,7 @@ function Container() {
 
 Container.prototype.lookup = function(key){
   var val = this.get(key);
-  return val || this.set(key, this.factories[key].apply(this.factories[key], this.args[key]));
+  return val || this.set(key, this.factories[key].create());
 }
 
 /**
@@ -35,9 +40,8 @@ Container.prototype.lookup = function(key){
  * @api public
  */
 
-Container.prototype.register = function(key, factory, args){
-  this.factories[key] = factory;
-  this.args[key] = args;
+Container.prototype.register = function(key, fn, args){
+  this.factories[key] = new Factory(fn, args);
 
   return this;
 }
