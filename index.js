@@ -87,4 +87,4 @@ Container.prototype.undefine = function(key){
  * so you can use containers manually.
  */
 
-Container.prototype.Container = Container;
+module.exports.Container = Container;
