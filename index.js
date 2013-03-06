@@ -30,18 +30,6 @@ function Container() {
 }
 
 /**
- * Get or lazily instantiate and return
- * an instance of a factory.
- *
- * @api public
- */
-
-Container.prototype.lookup = function(key){
-  var val = this.get(key);
-  return val || this.set(key, this.factories[key].create());
-}
-
-/**
  * Register a factory/class.
  *
  * @api public
@@ -51,6 +39,17 @@ Container.prototype.register = function(key, fn, args){
   this.factories[key] = new Factory(fn, args);
 
   return this;
+}
+
+/**
+ * Get or lazily instantiate and return
+ * an instance of a factory.
+ *
+ * @api public
+ */
+
+Container.prototype.lookup = function(key){
+  return this.get(key) || this.set(key, this.factories[key].create());
 }
 
 /**
