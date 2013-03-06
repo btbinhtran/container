@@ -42,6 +42,20 @@ Container.prototype.register = function(key, fn, args){
 }
 
 /**
+ * Get a registered factory.
+ *
+ * Example:
+ *
+ *    container.factory('admin', User, { isAdmin: true })
+ *    container.factory('admin').create();
+ */
+
+Container.prototype.factory = function(key, fn, args){
+  if (1 == arguments.length) return this.factories[key];
+  return this.register(key, fn, args);
+}
+
+/**
  * Get or lazily instantiate and return
  * an instance of a factory.
  *
