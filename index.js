@@ -1,11 +1,5 @@
 
 /**
- * Module dependencies.
- */
-
-var Factory = require('tower-factory');
-
-/**
  * Expose an instance of `Container`.
  */
 
@@ -26,100 +20,69 @@ module.exports.Container = Container;
 
 function Container() {
   this.factories = {};
-  this.cache = {};
+  this.instances = {};
+  this.fns = {};
 }
 
 /**
- * Register a factory/class.
+ * Register a new namespace.
  *
- * @param {String}    key
- * @param {Function}  fn
- * @param {Array}     [args]
  * @api public
  */
 
-Container.prototype.register = function(key, fn, args){
-  this.factories[key] = new Factory(fn, args);
+Container.prototype.ns = function(ns) {
+  this.factories[ns] = {};
+  this.instances[ns] = {};
+  this.fns[ns] = {};
+
   return this;
 }
 
 /**
- * Get a registered factory.
+ * Get or set a factory (class) by key.
  *
- * Example:
- *
- *    container.factory('admin', User, { isAdmin: true })
- *    container.factory('admin').create();
- *
- * @param {String}    key
- * @param {Function}  [fn]
- * @param {Array}     [args]
  * @api public
  */
 
-Container.prototype.factory = function(key, fn, args){
-  if (1 == arguments.length) return this.factories[key];
-  return this.register(key, fn, args);
+Container.prototype.factory = function(ns, key, val) {
+  return 3 == arguments.length
+    ? this.factories[ns][key] = val // && this for chaining when setting?
+    : this.factories[ns][key];
 }
 
 /**
- * Get or lazily instantiate and return
- * an instance of a factory.
+ * Get or set an object instance by key.
  *
- * @param {String} key
- * @param {String} [factoryKey] Can be a glob.
  * @api public
  */
 
-Container.prototype.lookup = function(key, factoryKey){
-  return this.get(key) || this.set(key, this.resolve(factoryKey || key));
+Container.prototype.instance = function(ns, key, val) {
+  return 3 == arguments.length
+    ? this.instances[ns][key] = val
+    : this.instances[ns][key]
+      = this.instances[ns][key] || new (this.factory(ns, key));
 }
 
 /**
- * Resolve to the factory instance from a key.
+ * Get or set a function by key.
  *
- * @param {String} key
  * @api public
  */
 
-Container.prototype.resolve = function(key){
-  return this.factories[key].create();
+Container.prototype.fn = function(ns, key, val) {
+  return 3 == arguments.length
+    ? this.fns[ns][key] = val
+    : this.fns[ns][key];
 }
 
 /**
- * Get an instance of a class.
+ * Lookup factories/instances/functions by fully qualified name.
  *
- * @param {String} key
- * @api public
+ * @api fun
  */
 
-Container.prototype.get = function(key){
-  if (this.cache.hasOwnProperty(key)) return this.cache[key];
-}
-
-/**
- * Set an instance of a class.
- *
- * @param {String} key
- * @param {Object} val
- * @api public
- */
-
-Container.prototype.set = function(key, val){
-  return this.cache[key] = val;
-}
-
-/**
- * Remove everything from the `cache`.
- *
- * @api public
- */
-
-Container.prototype.clear = function(){
-  this.cache = {};
-  return this;
-}
-
-Container.prototype.undefine = function(key){
-  delete this.cache[key];
+Container.prototype.lookup = function(path) {
+  path = path.split('.');
+  if (!path[0].match(/^(?:factories|instances|fns)$/)) return;
+  return this[path[0]](path[1], path.slice(2).join('.'));
 }
