@@ -1,5 +1,11 @@
 
 /**
+ * Module dependencies.
+ */
+
+var Map = require('tower-map');
+
+/**
  * Expose an instance of `Container`.
  */
 
@@ -30,10 +36,12 @@ function Container() {
  * @api public
  */
 
-Container.prototype.ns = function(ns) {
-  this.factories[ns] = {};
-  this.instances[ns] = {};
-  this.fns[ns] = {};
+Container.prototype.ns = function(ns){
+  if (this.factories[ns]) return this;
+
+  this.factories[ns] = new Map;
+  this.instances[ns] = new Map;
+  this.fns[ns] = new Map;
 
   return this;
 }
@@ -44,10 +52,10 @@ Container.prototype.ns = function(ns) {
  * @api public
  */
 
-Container.prototype.factory = function(ns, key, val) {
+Container.prototype.factory = function(ns, key, val){
   return 3 == arguments.length
-    ? this.factories[ns][key] = val // && this for chaining when setting?
-    : this.factories[ns][key];
+    ? this.factories[ns].set(key, val) // && this for chaining when setting?
+    : this.factories[ns].get(key);
 }
 
 /**
@@ -56,11 +64,21 @@ Container.prototype.factory = function(ns, key, val) {
  * @api public
  */
 
-Container.prototype.instance = function(ns, key, val) {
-  return 3 == arguments.length
-    ? this.instances[ns][key] = val
-    : this.instances[ns][key]
-      = this.instances[ns][key] || new (this.factory(ns, key));
+Container.prototype.instance = function(ns, key, val){
+  assertNamespace(this, ns);
+
+  switch (arguments.length) {
+    case 3:
+      return this.instances[ns].set(key, val);
+      break;
+    case 2:
+      return this.instances[ns].get(key)
+        || this.instances[ns].set(key, new (this.factory(ns, key)));
+      break;
+    case 1:
+      return this.instances[ns];
+      break;
+  }
 }
 
 /**
@@ -69,10 +87,10 @@ Container.prototype.instance = function(ns, key, val) {
  * @api public
  */
 
-Container.prototype.fn = function(ns, key, val) {
+Container.prototype.fn = function(ns, key, val){
   return 3 == arguments.length
-    ? this.fns[ns][key] = val
-    : this.fns[ns][key];
+    ? this.fns[ns].set(key, val)
+    : this.fns[ns].get(key);
 }
 
 /**
@@ -81,7 +99,7 @@ Container.prototype.fn = function(ns, key, val) {
  * @api fun
  */
 
-Container.prototype.lookup = function(path) {
+Container.prototype.lookup = function(path){
   path = path.split('.');
   if (!path[0].match(/^(?:factories|instances|fns)$/)) return;
   return this[path[0]](path[1], path.slice(2).join('.'));
@@ -94,13 +112,13 @@ Container.prototype.lookup = function(path) {
  */
 
 Container.prototype.clear = function(){
-  var factories = this.factories
-    , instances = this.instances
-    , fns = this.fns;
-
-  for (var key in factories) {
-    factories[key] = {};
-    instances[key] = {};
-    fns[key] = {};
+  for (var key in this.factories) {
+    this.factories[key].clear();
+    this.instances[key].clear();
+    this.fns[key].clear();
   }
+}
+
+function assertNamespace(c, ns) {
+  if (!c.factories[ns]) throw new Error('Namespace `' + ns + '` does not exist');
 }
