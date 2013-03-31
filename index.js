@@ -86,3 +86,21 @@ Container.prototype.lookup = function(path) {
   if (!path[0].match(/^(?:factories|instances|fns)$/)) return;
   return this[path[0]](path[1], path.slice(2).join('.'));
 }
+
+/**
+ * Remove all objects (not namespaces).
+ *
+ * @api public
+ */
+
+Container.prototype.clear = function(){
+  var factories = this.factories
+    , instances = this.instances
+    , fns = this.fns;
+
+  for (var key in factories) {
+    factories[key] = {};
+    instances[key] = {};
+    fns[key] = {};
+  }
+}
